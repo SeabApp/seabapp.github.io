@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plataforma SEAB</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d25d2a">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+   <style>
+    /* Estilos base */
+    body, html { 
+        margin: 0; 
+        padding: 0; 
+        width: 100%;
+        height: 100%; 
+        overflow: hidden; /* Bloqueamos scroll del body */
+        background-color: #1a202c; 
+        position: fixed; /* Evita rebote */
+    }
+    
+    /* El Iframe (Tu App) */
+    iframe {
+        position: absolute; 
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0; 
+        width: 100%;
+        height: 100%; 
+        border: none;
+        display: block;
+        opacity: 0;
+        transition: opacity 1s ease-in;
+        z-index: 10;
+        /* SCROLL FIX */
+        overflow-y: auto;   
+        overflow-x: hidden; 
+        -webkit-overflow-scrolling: touch; 
+    }
+
+    /* Estilos para el Splash Screen (Cargando...) */
+    .splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #1a202c;
+        /* FLEXBOX PARA CENTRAR */
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centrado Vertical */
+        align-items: center;     /* Centrado Horizontal */
+        z-index: 20;
+        transition: opacity 0.5s ease-out, visibility 0.5s;
+    }
+
+    /* Clase para ocultar el Splash (FALTABA ESTA) */
+    .hidden-splash {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    /* Logo pulsante */
+    .splash-logo {
+        width: 120px; 
+        height: auto;
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+    }
+
+    /* Texto de carga */
+    .splash-text {
+        font-family: 'Arial', sans-serif;
+        color: #ffffff;
+        font-size: 14px;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
+
+    /* Animación de pulso */
+    @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.8; }
+    }
+</style>
+</head>
+<body>
+
+    <div id="splash-screen" class="splash-screen">
+        <img src="icons/icon-192.png" alt="SEAB Logo" class="splash-logo">
+        <div class="splash-text">Cargando Sistema...</div>
+    </div>
+
+   <iframe 
+    id="app-frame"
+    src="https://script.google.com/macros/s/AKfycbwy90AsdFpObjRgiTQXTAyRLOxiH865BQ2WCtnQ_45BKBVpF_zub6PfSAOIK4TppDE/exec"
+    allow="autoplay; fullscreen; geolocation; microphone; camera; midi; encrypted-media; presentation; clipboard-write; picture-in-picture; web-share"
+    sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-downloads allow-presentation allow-modals">
+</iframe>
+    
+    <script>
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(console.log);
+        }
+
+        // Lógica del Splash Screen
+        const iframe = document.getElementById('app-frame');
+        const splash = document.getElementById('splash-screen');
+
+        // Cuando el iframe termina de cargar lo básico...
+        iframe.onload = function() {
+            setTimeout(() => {
+                splash.classList.add('hidden-splash'); // Ocultar splash
+                iframe.style.opacity = '1';            // Mostrar App
+            }, 2500); 
+        };
+
+        // Fallback de seguridad
+        setTimeout(() => {
+            splash.classList.add('hidden-splash');
+            iframe.style.opacity = '1';
+        }, 8000);
+    </script>
+</body>
+</html>
+
